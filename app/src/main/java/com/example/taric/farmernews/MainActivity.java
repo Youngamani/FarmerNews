@@ -21,13 +21,17 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+
 public class MainActivity extends AppCompatActivity {
 
     private Toolbar mainToolbar;
     private FirebaseAuth mAuth;
     private FirebaseFirestore firebaseFirestore;
-    private FloatingActionButton addPostBtn;
+
     private String current_user_id;
+
+    private FloatingActionButton addPostBtn;
+
     private BottomNavigationView mainbottomNav;
 
     private HomeFragment homeFragment;
@@ -44,39 +48,47 @@ public class MainActivity extends AppCompatActivity {
 
         mainToolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(mainToolbar);
-        getSupportActionBar().setTitle("Famer's News");
 
-        if (mAuth.getCurrentUser() != null) {
+        getSupportActionBar().setTitle("Photo Blog");
+
+        if(mAuth.getCurrentUser() != null) {
 
             mainbottomNav = findViewById(R.id.mainbottomNav);
 
-            //FRAGMENTS
-
+            // FRAGMENTS
             homeFragment = new HomeFragment();
             notificationFragment = new NotificationFragment();
             accountFragment = new AccountFragment();
-            replaceFragment(homeFragment);
+
+            initializeFragment();
 
             mainbottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-                    switch (menuItem.getItemId()) {
+                    Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.main_container);
+
+                    switch (item.getItemId()) {
 
                         case R.id.bottom_action_home:
-                            replaceFragment(homeFragment);
+
+                            replaceFragment(homeFragment, currentFragment);
                             return true;
 
                         case R.id.bottom_action_account:
-                            replaceFragment(accountFragment);
+
+                            replaceFragment(accountFragment, currentFragment);
                             return true;
 
                         case R.id.bottom_action_notification:
-                            replaceFragment(notificationFragment);
+
+                            replaceFragment(notificationFragment, currentFragment);
                             return true;
 
                         default:
                             return false;
+
+
                     }
 
                 }
@@ -90,9 +102,12 @@ public class MainActivity extends AppCompatActivity {
 
                     Intent newPostIntent = new Intent(MainActivity.this, NewPostActivity.class);
                     startActivity(newPostIntent);
+
                 }
             });
+
         }
+
 
     }
 
@@ -103,50 +118,54 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if(currentUser == null){
 
-            sendTologin();
+            sendToLogin();
 
-        }else{
+        } else {
+
             current_user_id = mAuth.getCurrentUser().getUid();
-            firebaseFirestore.collection("users").document(current_user_id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+            firebaseFirestore.collection("Users").document(current_user_id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                    if (task.isSuccessful()){
+                    if(task.isSuccessful()){
 
-                        if (!task.getResult().exists()){
+                        if(!task.getResult().exists()){
 
-                            Intent SetupIntent =  new Intent (MainActivity.this, SetupActivity.class);
-                            startActivity(SetupIntent);
+                            Intent setupIntent = new Intent(MainActivity.this, SetupActivity.class);
+                            startActivity(setupIntent);
                             finish();
 
-                            }
+                        }
 
-
-                    }else{
+                    } else {
 
                         String errorMessage = task.getException().getMessage();
                         Toast.makeText(MainActivity.this, "Error : " + errorMessage, Toast.LENGTH_LONG).show();
+
+
                     }
+
                 }
             });
+
         }
+
     }
-
-
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
         getMenuInflater().inflate(R.menu.main_menu, menu);
-
         return true;
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
 
             case R.id.action_logout_btn:
                 logOut();
@@ -159,33 +178,73 @@ public class MainActivity extends AppCompatActivity {
 
                 return true;
 
-                default:
-                    return false;
+
+            default:
+                return false;
+
 
         }
 
     }
 
-
     private void logOut() {
 
+
         mAuth.signOut();
-        sendTologin();
+        sendToLogin();
     }
 
-    private void sendTologin() {
+    private void sendToLogin() {
 
-        Intent loginIntent = new Intent (MainActivity.this, LoginActivity.class);
+        Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(loginIntent);
         finish();
 
     }
 
-    private void replaceFragment (Fragment fragment){
+    private void initializeFragment(){
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.main_container, fragment);
+
+        fragmentTransaction.add(R.id.main_container, homeFragment);
+        fragmentTransaction.add(R.id.main_container, notificationFragment);
+        fragmentTransaction.add(R.id.main_container, accountFragment);
+
+        fragmentTransaction.hide(notificationFragment);
+        fragmentTransaction.hide(accountFragment);
+
         fragmentTransaction.commit();
 
     }
+
+    private void replaceFragment(Fragment fragment, Fragment currentFragment){
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        if(fragment == homeFragment){
+
+            fragmentTransaction.hide(accountFragment);
+            fragmentTransaction.hide(notificationFragment);
+
+        }
+
+        if(fragment == accountFragment){
+
+            fragmentTransaction.hide(homeFragment);
+            fragmentTransaction.hide(notificationFragment);
+
+        }
+
+        if(fragment == notificationFragment){
+
+            fragmentTransaction.hide(homeFragment);
+            fragmentTransaction.hide(accountFragment);
+
+        }
+        fragmentTransaction.show(fragment);
+
+        //fragmentTransaction.replace(R.id.main_container, fragment);
+        fragmentTransaction.commit();
+
+    }
+
 }

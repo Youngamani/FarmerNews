@@ -44,7 +44,6 @@ import id.zelory.compressor.Compressor;
 
 import static java.lang.StrictMath.random;
 
-
 public class NewPostActivity extends AppCompatActivity {
 
     private Toolbar newPostToolbar;
@@ -65,7 +64,6 @@ public class NewPostActivity extends AppCompatActivity {
 
     private Bitmap compressedImageFile;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,14 +77,13 @@ public class NewPostActivity extends AppCompatActivity {
 
         newPostToolbar = findViewById(R.id.new_post_toolbar);
         setSupportActionBar(newPostToolbar);
-        getSupportActionBar().setTitle("Nouveau Post");
+        getSupportActionBar().setTitle("Add New Post");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        newPostImage =  findViewById(R.id.new_post_image);
+        newPostImage = findViewById(R.id.new_post_image);
         newPostDesc = findViewById(R.id.new_post_desc);
         newPostBtn = findViewById(R.id.post_btn);
         newPostProgress = findViewById(R.id.new_post_progress);
-
 
         newPostImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,112 +102,146 @@ public class NewPostActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-
                 final String desc = newPostDesc.getText().toString();
 
                 if(!TextUtils.isEmpty(desc) && postImageUri != null){
 
                     newPostProgress.setVisibility(View.VISIBLE);
+
                     final String randomName = UUID.randomUUID().toString();
 
-            // PHOTO UPLOAD
-        File newImageFile = new File(postImageUri.getPath());
-        try {
-            compressedImageFile = new Compressor(NewPostActivity.this)
-                    .setMaxHeight(720)
-                    .setMaxWidth(720)
-                    .setQuality(50)
-                    .compressToBitmap(newImageFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                    // PHOTO UPLOAD
+                    File newImageFile = new File(postImageUri.getPath());
+                    try {
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] imageData = baos.toByteArray();
+                        compressedImageFile = new Compressor(NewPostActivity.this)
+                                .setMaxHeight(720)
+                                .setMaxWidth(720)
+                                .setQuality(50)
+                                .compressToBitmap(newImageFile);
 
-        // PHOTO UPLOAD
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    byte[] imageData = baos.toByteArray();
+
+                    // PHOTO UPLOAD
+
                     UploadTask filePath = storageReference.child("post_images").child(randomName + ".jpg").putBytes(imageData);
-        filePath.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-             @Override
-             public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
+                    filePath.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
 
-                 //getDownload
-                 final String downloadUri = task.getResult().getUploadSessionUri().toString();
+                            //getDownload
+                            final String downloadUri = task.getResult().getUploadSessionUri().toString();
 
-                 if(task.isSuccessful()){
-                     File newThumbFile = new File(postImageUri.getPath());
-                     try {
-                         compressedImageFile = new Compressor(NewPostActivity.this)
-                                 .setMaxHeight(100)
-                                 .setMaxWidth(100)
-                                 .setQuality(1)
-                                 .compressToBitmap(newThumbFile);
-                     } catch (IOException e) {
-                         e.printStackTrace();
-                     }
-                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                     compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                     byte[] thumbData = baos.toByteArray();
+                            if(task.isSuccessful()){
 
-                     UploadTask uploadTask = storageReference.child("post_images/thumbs")
-                             .child(randomName + ".jpg").putBytes(thumbData);
+                                File newThumbFile = new File(postImageUri.getPath());
+                                try {
 
-                     uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                         @Override
-                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    compressedImageFile = new Compressor(NewPostActivity.this)
+                                            .setMaxHeight(100)
+                                            .setMaxWidth(100)
+                                            .setQuality(1)
+                                            .compressToBitmap(newThumbFile);
 
-                             //getDownload
-                             String downloadthumbUri = taskSnapshot.getUploadSessionUri().toString();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
 
-                             Map<String, Object> postMap = new HashMap<>();
-                             postMap.put("image_url", downloadUri);
-                             postMap.put("image_thumb", downloadthumbUri);
-                             postMap.put("desc", desc);
-                             postMap.put("user_id", current_user_id);
-                             postMap.put("timestamp", FieldValue.serverTimestamp());
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                                byte[] thumbData = baos.toByteArray();
 
-                             firebaseFirestore.collection("Posts").add(postMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                 @Override
-                                 public void onComplete(@NonNull Task<DocumentReference> task) {
-                                     if(task.isSuccessful()){
-                                         Toast.makeText(NewPostActivity.this, "Post was added", Toast.LENGTH_LONG).show();
-                                         Intent mainIntent = new Intent(NewPostActivity.this, MainActivity.class);
-                                         startActivity(mainIntent);
-                                         finish();
-                                     } else {
-                                     }
-                                     newPostProgress.setVisibility(View.INVISIBLE);
-                                 }
-                             });
-                         }
-                     }).addOnFailureListener(new OnFailureListener() {
-                         @Override
-                         public void onFailure(@NonNull Exception e) {
-                       //Error handling
-                         }
-                     });
-                 } else {
-                     newPostProgress.setVisibility(View.INVISIBLE);
-                 }
-             }
-        });
+                                UploadTask uploadTask = storageReference.child("post_images/thumbs")
+                                        .child(randomName + ".jpg").putBytes(thumbData);
+
+                                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                        //getDownload
+                                        String downloadthumbUri = taskSnapshot.getUploadSessionUri().toString();
+
+                                        Map<String, Object> postMap = new HashMap<>();
+                                        postMap.put("image_url", downloadUri);
+                                        postMap.put("image_thumb", downloadthumbUri);
+                                        postMap.put("desc", desc);
+                                        postMap.put("user_id", current_user_id);
+                                        postMap.put("timestamp", FieldValue.serverTimestamp());
+
+                                        firebaseFirestore.collection("Posts").add(postMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentReference> task) {
+
+                                                if(task.isSuccessful()){
+
+                                                    Toast.makeText(NewPostActivity.this, "Post was added", Toast.LENGTH_LONG).show();
+                                                    Intent mainIntent = new Intent(NewPostActivity.this, MainActivity.class);
+                                                    startActivity(mainIntent);
+                                                    finish();
+
+                                                } else {
+
+
+                                                }
+
+                                                newPostProgress.setVisibility(View.INVISIBLE);
+
+                                            }
+                                        });
+
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+
+                                        //Error handling
+
+                                    }
+                                });
+
+
+                            } else {
+
+                                newPostProgress.setVisibility(View.INVISIBLE);
+
+                            }
+
+                        }
+                    });
+
 
                 }
+
             }
         });
+
+
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
+
                 postImageUri = result.getUri();
                 newPostImage.setImageURI(postImageUri);
+
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+
                 Exception error = result.getError();
+
             }
         }
+
     }
+
 }

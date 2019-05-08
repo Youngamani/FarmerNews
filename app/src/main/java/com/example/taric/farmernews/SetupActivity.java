@@ -44,13 +44,13 @@ import id.zelory.compressor.Compressor;
 
 public class SetupActivity extends AppCompatActivity {
 
-    private Toolbar setupToolbar;
-    private String user_id;
-    private boolean isChanged = false;
+    private CircleImageView setupImage;
     private Uri mainImageURI = null;
 
+    private String user_id;
 
-    private CircleImageView setupImage;
+    private boolean isChanged = false;
+
     private EditText setupName;
     private Button setupBtn;
     private ProgressBar setupProgress;
@@ -58,6 +58,7 @@ public class SetupActivity extends AppCompatActivity {
     private StorageReference storageReference;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
+
     private Bitmap compressedImageFile;
 
     @Override
@@ -65,14 +66,16 @@ public class SetupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup);
 
-        setupToolbar = findViewById(R.id.setupToolbar);
+        Toolbar setupToolbar = findViewById(R.id.setupToolbar);
         setSupportActionBar(setupToolbar);
-        getSupportActionBar().setTitle("Profil");
+        getSupportActionBar().setTitle("Account Setup");
 
         firebaseAuth = FirebaseAuth.getInstance();
-        storageReference = FirebaseStorage.getInstance().getReference();
-        firebaseFirestore = FirebaseFirestore.getInstance();
         user_id = firebaseAuth.getCurrentUser().getUid();
+
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        storageReference = FirebaseStorage.getInstance().getReference();
+
 
         setupImage = findViewById(R.id.setup_image);
         setupName = findViewById(R.id.new_post_desc);
@@ -86,9 +89,9 @@ public class SetupActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-                if (task.isSuccessful()){
+                if(task.isSuccessful()){
 
-                    if (task.getResult().exists()) {
+                    if(task.getResult().exists()){
 
                         String name = task.getResult().getString("name");
                         String image = task.getResult().getString("image");
@@ -102,17 +105,22 @@ public class SetupActivity extends AppCompatActivity {
 
                         Glide.with(SetupActivity.this).setDefaultRequestOptions(placeholderRequest).load(image).into(setupImage);
 
+
                     }
-                }else{
+
+                } else {
 
                     String error = task.getException().getMessage();
-                    Toast.makeText(SetupActivity.this, "FIRESTORE rencontre une erreur :" + error, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SetupActivity.this, "(FIRESTORE Retrieve Error) : " + error, Toast.LENGTH_LONG).show();
 
                 }
+
                 setupProgress.setVisibility(View.INVISIBLE);
                 setupBtn.setEnabled(true);
+
             }
         });
+
 
         setupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,66 +138,80 @@ public class SetupActivity extends AppCompatActivity {
 
                         File newImageFile = new File(mainImageURI.getPath());
                         try {
+
                             compressedImageFile = new Compressor(SetupActivity.this)
                                     .setMaxHeight(125)
                                     .setMaxWidth(125)
                                     .setQuality(50)
                                     .compressToBitmap(newImageFile);
+
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         compressedImageFile.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                         byte[] thumbData = baos.toByteArray();
 
-
-
                         UploadTask image_path = storageReference.child("profile_images").child(user_id + ".jpg").putBytes(thumbData);
+
                         image_path.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
                                 if (task.isSuccessful()) {
                                     storeFirestore(task, user_name);
+
                                 } else {
+
                                     String error = task.getException().getMessage();
                                     Toast.makeText(SetupActivity.this, "(IMAGE Error) : " + error, Toast.LENGTH_LONG).show();
+
                                     setupProgress.setVisibility(View.INVISIBLE);
+
                                 }
                             }
                         });
+
                     } else {
 
                         storeFirestore(null, user_name);
+
                     }
 
                 }
 
             }
+
         });
+
         setupImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
 
-                    if (ContextCompat.checkSelfPermission(SetupActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                    if(ContextCompat.checkSelfPermission(SetupActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
 
-                        Toast.makeText(SetupActivity.this, "Permission refusée", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SetupActivity.this, "Permission Denied", Toast.LENGTH_LONG).show();
                         ActivityCompat.requestPermissions(SetupActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
 
-                    }else{
+                    } else {
 
                         BringImagePicker();
 
                     }
 
-                }else {
+                } else {
 
                     BringImagePicker();
 
                 }
+
             }
+
         });
+
 
     }
 
@@ -197,17 +219,16 @@ public class SetupActivity extends AppCompatActivity {
 
         Uri download_uri;
 
-        if (task != null) {
+        if(task != null) {
 
+            //getDownload
             download_uri = task.getResult().getUploadSessionUri();
 
-
-        }else{
+        } else {
 
             download_uri = mainImageURI;
 
         }
-
 
         Map<String, String> userMap = new HashMap<>();
         userMap.put("name", user_name);
@@ -216,23 +237,27 @@ public class SetupActivity extends AppCompatActivity {
         firebaseFirestore.collection("Users").document(user_id).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
 
-                    Toast.makeText(SetupActivity.this, "Mises à jour des paramètres d'utilisateur.", Toast.LENGTH_SHORT).show();
+                if(task.isSuccessful()){
+
+                    Toast.makeText(SetupActivity.this, "The user Settings are updated.", Toast.LENGTH_LONG).show();
                     Intent mainIntent = new Intent(SetupActivity.this, MainActivity.class);
                     startActivity(mainIntent);
                     finish();
 
-                }else{
+                } else {
 
                     String error = task.getException().getMessage();
-                    Toast.makeText(SetupActivity.this, "Erreur de FIRESTORE :" + error, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SetupActivity.this, "(FIRESTORE Error) : " + error, Toast.LENGTH_LONG).show();
 
                 }
 
                 setupProgress.setVisibility(View.INVISIBLE);
+
             }
         });
+
+
     }
 
     private void BringImagePicker() {
@@ -241,25 +266,28 @@ public class SetupActivity extends AppCompatActivity {
                 .setGuidelines(CropImageView.Guidelines.ON)
                 .setAspectRatio(1, 1)
                 .start(SetupActivity.this);
+
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE){
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK){
+            if (resultCode == RESULT_OK) {
 
                 mainImageURI = result.getUri();
                 setupImage.setImageURI(mainImageURI);
 
                 isChanged = true;
 
-            }else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE){
-                Exception error = result.getError();
-            }
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
 
+                Exception error = result.getError();
+
+            }
         }
+
     }
 }
