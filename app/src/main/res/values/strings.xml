@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">FarmerNews</string>
+    <string name="reg_pass_text">Mot de passe</string>
+    <string name="reg_login_text">Avez-vous déjà un compte ?</string>
+    <string name="reg_btn_text">Créer un nouveau compte</string>
+    <string name="reg_confirm_pass_text">Confirmer le mot de passe</string>
+    <string name="email_hint">Email</string>
+    <string name="login_logo_desc">logo register</string>
+    <string name="pass_hint">Mot de passe</string>
+    <string name="login_btn_text">Connectez-vous</string>
+    <string name="login_reg_btn_text">Créer un compte</string>
+    <string name="setup_name_hint_text">Veillez completer votre nom</string>
+    <string name="setup_btn_name_text">Enregistrer les modifications</string>
+    <string name="account_setting">Parametre du compte</string>
+    <string name="action_logout_setting">Se deconnecter</string>
+    <string name="action_search_txt">Recherche</string>
+    <string name="image_add">ajouter image</string>
+    <string name="descriprion">Ajouter une déscription</string>
+    <string name="new_add_btn">Ajouter un Post</string>
+    <string name="textDesc">Bienvenu sur FAMER\'S NEWS</string>
+    <string name="textdescription">Farmer\'s News vous permet de rester en contact et d\'echanger avec les membres de l\'IPAPEL/SUD-KIVU</string>
+    <string name="textDescReg">INSCRIPTION SUR FAMER\'S NEWS</string>
+    <string name="description_reg">L\'inscription sur Farmer\'s News est gratuite et ouverte à tout membre de l\'IPAPEL/SUD-KIVU</string>
+    <string name="desc_profil_txt">Ce n\'est pas votre nom d\'utilisateur ou code d\'accès.</string>
+    <string name="desc_txt_profil">Ce nom sera visible par les utilisations Famer\'s News</string>
+    <string name="bottom_home_txt">Accueil</string>
+    <string name="bottom_notification_txt">Notification</string>
+    <string name="bottom_ac_txt">Moi</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

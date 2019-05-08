@@ -1,0 +1,44 @@
+{
+  "project_info": {
+    "project_number": "653940941112",
+    "firebase_url": "https://farmernews-5be37.firebaseio.com",
+    "project_id": "farmernews-5be37",
+    "storage_bucket": "farmernews-5be37.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:653940941112:android:6938aed31344d36f",
+        "android_client_info": {
+          "package_name": "com.example.taric.farmernews"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "653940941112-0u929bfjdovksksmt4cmib9bs3voem6i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.taric.farmernews",
+            "certificate_hash": "fe75628dac1460c8d280b7be7a311f428cf67e9d"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBISq2jNn-D3W9a9gL2qtzz3foDDMCm9PA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "653940941112-tc1c5athquoof7kqk7fd6cs2o8os6ook.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
