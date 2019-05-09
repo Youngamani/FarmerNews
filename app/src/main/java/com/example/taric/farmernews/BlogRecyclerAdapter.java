@@ -1,6 +1,7 @@
 package com.example.taric.farmernews;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
@@ -9,16 +10,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -122,11 +131,11 @@ public class BlogRecyclerAdapter extends RecyclerView.Adapter<BlogRecyclerAdapte
 
                 if(documentSnapshot.exists()){
 
-                    holder.blogLikeBtn.setImageDrawable(context.getDrawable(R.mipmap.action_like_accent));
+                    holder.blogLikeBtn.setImageDrawable(context.getDrawable(R.drawable.action_like_accent));
 
                 } else {
 
-                    holder.blogLikeBtn.setImageDrawable(context.getDrawable(R.mipmap.action_like_gray));
+                    holder.blogLikeBtn.setImageDrawable(context.getDrawable(R.drawable.action_like_gray));
 
                 }
 
@@ -207,17 +216,17 @@ public class BlogRecyclerAdapter extends RecyclerView.Adapter<BlogRecyclerAdapte
 
         public void setDescText(String descText){
 
-            descView = mView.findViewById(R.id.blog_desc);
+            descView = mView.findViewById(R.id.blog_desec);
             descView.setText(descText);
 
         }
 
         public void setBlogImage(String downloadUri, String thumbUri){
 
-            blogImageView = mView.findViewById(R.id.blog_image);
+            blogImageView = mView.findViewById(R.id.blog_image_txt);
 
             RequestOptions requestOptions = new RequestOptions();
-            requestOptions.placeholder(R.drawable.image_placeholder);
+            requestOptions.placeholder(R.mipmap.circle);
 
             Glide.with(context).applyDefaultRequestOptions(requestOptions).load(downloadUri).thumbnail(
                     Glide.with(context).load(thumbUri)
@@ -240,7 +249,7 @@ public class BlogRecyclerAdapter extends RecyclerView.Adapter<BlogRecyclerAdapte
             blogUserName.setText(name);
 
             RequestOptions placeholderOption = new RequestOptions();
-            placeholderOption.placeholder(R.drawable.profile_placeholder);
+            placeholderOption.placeholder(R.mipmap.circle);
 
             Glide.with(context).applyDefaultRequestOptions(placeholderOption).load(image).into(blogUserImage);
 

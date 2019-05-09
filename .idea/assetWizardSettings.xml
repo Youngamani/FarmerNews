@@ -33,9 +33,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="profile_placeholder" />
+                                      <entry key="outputName" value="action_send" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="444444" />
+                                      <entry key="themeColor" value="757575" />
                                     </map>
                                   </option>
                                 </PersistentState>
