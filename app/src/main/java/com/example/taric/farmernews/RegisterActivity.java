@@ -83,7 +83,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 }else{
 
                                     String errorMessage = task.getException().getMessage();
-                                    Toast.makeText(RegisterActivity.this, "Error : " + errorMessage, Toast.LENGTH_LONG).show();
+                                    Toast.makeText(RegisterActivity.this, "Email déjà utilisé" + errorMessage, Toast.LENGTH_LONG).show();
 
                                 }
                                 reg_progress.setVisibility(View.INVISIBLE);
@@ -91,7 +91,7 @@ public class RegisterActivity extends AppCompatActivity {
                         });
 
                     }else{
-                        Toast.makeText(RegisterActivity.this, "Confirm Password Field doesn't match.", Toast.LENGTH_LONG);
+                        Toast.makeText(RegisterActivity.this, "Confirm Password Field doesn't match.", Toast.LENGTH_LONG).show();
 
                     }
                 }
